@@ -19,6 +19,9 @@
   --script: 'Pinyon Script', 'Snell Roundhand', cursive;
   --hand: 'Kalam', 'Bradley Hand', cursive;
   --guj: 'Noto Serif Gujarati', 'Gujarati Sangam MN', serif;
+  --paper:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .05 0'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>"),
+      linear-gradient(100deg, rgba(255,255,255,.5), rgba(255,255,255,0) 40%, rgba(255,255,255,.35) 70%, rgba(255,255,255,0));
   --col: min(600px, 100vw);
   --ui: 0px;   /* the phone browser's toolbar, when it is showing: large minus small viewport */
   color-scheme: light;
@@ -122,9 +125,7 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 .issue[hidden] { display: none; }
 .pg {
   position: relative; padding: 64px 26px 76px; text-align: center; background-color: var(--silk);
-  background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .2 0 0 0 .05 0'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>"),
-    linear-gradient(100deg, rgba(255,255,255,.5), rgba(255,255,255,0) 40%, rgba(255,255,255,.35) 70%, rgba(255,255,255,0));
+  background-image: var(--paper);
   overflow-x: hidden; overflow-x: clip;   /* lookbook cards start tilted off-screen; without this the phone lays the page out wider */
 }
 .pg--blush { background-color: var(--blush); }
@@ -145,18 +146,19 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 .rule { display: block; width: 90px; height: 1px; margin: 26px auto; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 
 /* cover + page turn: the cover is three hinged strips (app.js renderTurn), so the page bends as it lifts */
-.turn { position: relative; height: 100vh; height: 100lvh; perspective: 1500px; overflow: hidden; background: var(--silk); }
-.leaf { position: absolute; inset: 0; z-index: 3; transform-style: preserve-3d; --W: 100vw; }
-.seg { position: absolute; top: 0; height: 100%; width: calc(var(--W) / 3 + .5px); transform-origin: 0 50%; transform-style: preserve-3d; will-change: transform; }
-.leaf > .seg { left: 0; }
+.turn { position: relative; height: 100vh; height: 100lvh; perspective: 1500px; overflow: hidden; background-color: var(--silk); background-image: var(--paper); }
+.leaf { position: absolute; inset: 0; z-index: 3; transform-style: preserve-3d; }
+/* sized in CSS only, so the strips always match the page (a width measured in JS went stale when the window changed while pinned) */
+.seg { position: absolute; top: 0; height: 100%; transform-origin: 0 50%; transform-style: preserve-3d; will-change: transform; }
+.leaf > .seg { left: 0; width: calc(100% / 3 + .5px); }
 /* at rest one flat copy shows (strip edges would leave hairlines); the strips take over once the page moves */
 .leaf__flat { position: absolute; inset: 0; }
 .turn:not(.is-turning) .leaf > .seg { visibility: hidden; }
 .turn.is-turning .leaf__flat { visibility: hidden; }
-.seg > .seg { left: calc(100% - .5px); }
+.seg > .seg { left: calc(100% - .5px); width: 100%; }
 .face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .face--back { transform: rotateY(180deg); background: var(--silk); }
-.face__in { position: absolute; top: 0; height: 100%; width: var(--W); }
+.face__in { position: absolute; top: 0; height: 100%; width: calc((100% - .5px) * 3); }
 .face__shade, .face__gloss { position: absolute; inset: 0; pointer-events: none; }
 .face__shade { background: linear-gradient(90deg, rgba(30,8,14,var(--sl, 0)), rgba(30,8,14,var(--sr, 0))); }
 .face--back .face__shade { background: linear-gradient(270deg, rgba(30,8,14,var(--sl, 0)), rgba(30,8,14,var(--sr, 0))); }
@@ -168,7 +170,7 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 .cover::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(20,5,10,.55) 0%, rgba(20,5,10,0) 28%, rgba(20,5,10,0) 52%, rgba(20,5,10,.78) 100%); }
 .cover__top { position: absolute; z-index: 2; left: 0; right: 0; top: max(18px, env(safe-area-inset-top)); padding: 0 74px 0 18px; line-height: 46px; margin-top: -14px; display: flex; justify-content: space-between; font-family: var(--didone); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(255,248,236,.9); }
 .cover__head { position: absolute; z-index: 2; left: 0; right: 0; top: calc(max(18px, env(safe-area-inset-top)) + 30px); text-align: center; }
-.cover__mast { margin: 0; text-align: center; font-family: var(--didone); font-weight: 400; font-size: clamp(74px, 25vw, 148px); line-height: .9; letter-spacing: .03em; padding-left: .03em; text-shadow: 0 3px 24px rgba(0,0,0,.3); }
+.cover__mast { margin: 0; text-align: center; font-family: var(--didone); font-weight: 400; font-size: clamp(74px, 25vw, 148px); line-height: .9; letter-spacing: .03em; padding-left: .03em; white-space: nowrap; text-shadow: 0 3px 24px rgba(0,0,0,.3); }
 .cover__mast span { display: inline-block; }
 .cover__issue { margin: 8px 0 0; text-align: center; font-family: var(--didone); font-style: italic; font-size: 15px; letter-spacing: .26em; color: var(--gold-light); }
 /* the starburst seal: over the sky, clear of her face */

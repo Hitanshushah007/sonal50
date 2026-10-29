@@ -201,8 +201,8 @@
     const front = coverHTML(c, mast), back = insideHTML();
     // the cover is three hinged strips (each a window onto the full cover), so the page can curl as it turns
     const seg = (i, inner) => `<div class="seg" style="--i:${i}">
-        <div class="face face--front"><div class="face__in" style="left:calc(var(--W) * ${-i / 3})">${front}</div><i class="face__shade"></i><i class="face__gloss"></i></div>
-        <div class="face face--back"><div class="face__in" style="left:calc(var(--W) * ${-(2 - i) / 3})">${back}</div><i class="face__shade"></i></div>
+        <div class="face face--front"><div class="face__in" style="left:calc((100% - .5px) * ${-i})">${front}</div><i class="face__shade"></i><i class="face__gloss"></i></div>
+        <div class="face face--back"><div class="face__in" style="left:calc((100% - .5px) * ${-(2 - i)})">${back}</div><i class="face__shade"></i></div>
         ${inner || ''}</div>`;
     return `<div class="turn" id="turn">
       <div class="opening">
@@ -454,7 +454,6 @@
   /* ---------------- the page turn ---------------- */
   const turnState = { p: 0 };
   const rad = (d) => d * Math.PI / 180;
-  function sizeLeaf() { const leaf = $('#leaf'); if (leaf) leaf.style.setProperty('--W', `${leaf.offsetWidth}px`); }
   function renderTurn(q) {
     const segs = $$('#leaf .seg');
     const e = Math.pow(q, 1.9);   // the edge peels slowly; the page is off screen past ~100°, so the visible part gets most of the scroll
@@ -477,7 +476,7 @@
 
   /* ---------------- scroll animations ---------------- */
   function setupScrollAnimations() {
-    sizeLeaf(); addEventListener('resize', sizeLeaf); renderTurn(0);
+    renderTurn(0);
     // the cover turns like a page, and the golden "50" writes itself underneath
     const stroke = $('.fifty__stroke');
     G.set(stroke, { strokeDasharray: 900, strokeDashoffset: 900 });
@@ -491,10 +490,10 @@
       },
     })
       .to(turnState, { p: 1, duration: .85, ease: 'none', onUpdate: () => renderTurn(turnState.p) }, 0)
-      .to(stroke, { strokeDashoffset: 0, duration: .55, ease: 'none' }, .35)
-      .to('.fifty__fill', { opacity: 1, duration: .25 }, .78)
-      .to(stroke, { opacity: .25, duration: .2 }, .85)
-      .to('.opening [data-intro]', { opacity: 1, y: 0, duration: .25, stagger: .07 }, .6)
+      .to(stroke, { strokeDashoffset: 0, duration: .6, ease: 'none' }, .03)
+      .to('.fifty__fill', { opacity: 1, duration: .25 }, .62)
+      .to(stroke, { opacity: .25, duration: .2 }, .72)
+      .to('.opening [data-intro]', { opacity: 1, y: 0, duration: .25, stagger: .06 }, .22)
       .to({}, { duration: .3 });
 
     $$('[data-reveal]').forEach((el) => G.from(el, { opacity: 0, y: 26, duration: .9, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 88%', once: true } }));
