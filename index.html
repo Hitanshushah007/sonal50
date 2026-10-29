@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SONAL · The Golden Issue</title>
+<meta name="description" content="A little something, made to measure. Open with the sound on.">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#4a0f22">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SONAL · The Golden Issue">
+<meta property="og:description" content="For Mummy, on her 50th. Made to measure, with love. Open with the sound on.">
+<meta property="og:image" content="https://hitanshushah007.github.io/sonal50/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" href="fonts/BodoniModa-r-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/PinyonScript-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="is-boxed">
+<canvas id="dust" aria-hidden="true"></canvas>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<section id="gate" class="gate" hidden>
+  <div>
+    <h1>SONAL</h1>
+    <p>This little issue is for Sonal's family. Please open it from the link you were sent on WhatsApp.</p>
+  </div>
+</section>
+
+<section id="stage" class="stage" aria-label="A gift box for Sonal">
+  <p class="stage__kicker">30 October 2026</p>
+  <p class="stage__line">a little something, made to measure</p>
+  <div class="gift" aria-hidden="true">
+    <div class="mini"><img alt=""><div class="mini__mast">SONAL</div></div>
+    <div class="gift__tissue"><span></span><span></span></div>
+    <div class="gift__base"><span class="gift__logo">SONAL</span><span class="gift__est">COUTURE · EST. 1976</span></div>
+    <div class="gift__ribbon-h"></div>
+    <div class="gift__lid"></div>
+    <div class="gift__ribbon-v"></div>
+    <div class="gift__bow"><span class="bow-tail bow-tail--l"></span><span class="bow-tail bow-tail--r"></span><span class="bow-loop bow-loop--l"></span><span class="bow-loop bow-loop--r"></span><span class="bow-knot"></span></div>
+    <div class="gift__tag"><span class="gift__tag-string"></span><span class="gift__tag-card">For Mummy<small>ON HER 50TH</small></span></div>
+  </div>
+  <button id="open" class="stage__btn" type="button" disabled>Preparing your gift…</button>
+  <p class="stage__hint">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#e9c977" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    sound on, please
+  </p>
+</section>
+
+<button id="sound" class="sound" type="button" aria-label="Pause the music" hidden>
+  <svg class="on" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  <svg class="off" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M3 3l18 18"/></svg>
+</button>
+
+<main id="issue" class="issue" aria-label="SONAL, the golden issue" hidden></main>
+
+<div id="sheet" class="sheet" hidden>
+  <form id="wishForm" aria-labelledby="wishTitle" novalidate>
+    <h2 id="wishTitle">Take your front-row seat</h2>
+    <p class="sub">Your wish stays in Sonal's issue, for her to read anytime.</p>
+    <label for="wName">Your name</label>
+    <input id="wName" name="name" maxlength="60" autocomplete="name" required>
+    <label for="wRel">How you know her <span class="opt">optional</span></label>
+    <input id="wRel" name="rel" maxlength="60" placeholder="sister, friend, neighbour…">
+    <label for="wText">Your wish <span class="opt" id="wCount">0 / 1200</span></label>
+    <textarea id="wText" name="text" maxlength="1200" required placeholder="Write in any language you like…"></textarea>
+    <p class="msg" id="wMsg" role="status"></p>
+    <div class="row">
+      <button class="btn btn--ghost" type="button" id="wCancel">Cancel</button>
+      <button class="btn btn--gold" type="submit" id="wSend">Add my wish</button>
+    </div>
+  </form>
+</div>
+
+<audio id="music" preload="auto" playsinline></audio>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
