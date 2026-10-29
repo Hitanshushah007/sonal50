@@ -28,7 +28,8 @@
     return crypto.subtle.decrypt({ name: 'AES-GCM', iv: b.slice(0, 12) }, key, b.slice(12));
   };
   async function fetchDecrypt(key, url) {
-    const r = await fetch(url);
+    // c.bin's name never changes, so always revalidate it; photos are content-addressed and can stay cached
+    const r = await fetch(url, { cache: url === 'c.bin' ? 'no-cache' : 'default' });
     if (!r.ok) throw new Error(url + ' → ' + r.status);
     return decrypt(key, await r.arrayBuffer());
   }
