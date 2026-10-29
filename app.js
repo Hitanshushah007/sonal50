@@ -134,7 +134,7 @@
   function pauseMusic() { music.el.pause(); setSound(false); }
 
   /* ---------------- pieces ---------------- */
-  const goldDefs = `<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3cf"/><stop offset=".3" stop-color="#e9c977"/><stop offset=".62" stop-color="#b38a2e"/><stop offset=".82" stop-color="#f2d78f"/><stop offset="1" stop-color="#8d6421"/></linearGradient></defs>`;
+  const goldDefs = `<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3cf"/><stop offset=".3" stop-color="#e9c977"/><stop offset=".62" stop-color="#b38a2e"/><stop offset=".82" stop-color="#f2d78f"/><stop offset="1" stop-color="#8d6421"/></linearGradient><radialGradient id="seal" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#fff6d8"/><stop offset=".32" stop-color="#efd38c"/><stop offset=".7" stop-color="#c39a3c"/><stop offset="1" stop-color="#8d6421"/></radialGradient></defs>`;
   const flipIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>';
   const pos = (p) => (p && p.focus ? `object-position:${Math.round(p.focus[0] * 100)}% ${Math.round(p.focus[1] * 100)}%` : '');
   let lookNo = 0;
@@ -163,8 +163,47 @@
     </figure>`;
   }
 
+  // a starburst seal: 28 points alternating between two radii
+  const STAR = Array.from({ length: 56 }, (_, i) => { const a = (i / 56) * Math.PI * 2 - Math.PI / 2, r = i % 2 ? 44 : 49.5; return `${(50 + r * Math.cos(a)).toFixed(2)},${(50 + r * Math.sin(a)).toFixed(2)}`; }).join(' ');
+  const BARS = '1 2 1 1 3 1 2 1 1 2 3 1 1 2 1 3 1 1 2 1 2 1 1 3 2 1'.split(' ').map(Number);
+  function barcode() {
+    let x = 0; const rects = BARS.map((w, i) => { const r = i % 2 ? '' : `<rect x="${x}" y="0" width="${w}" height="26"/>`; x += w; return r; }).join('');
+    return `<svg viewBox="0 0 ${x} 26" aria-hidden="true">${rects}</svg>`;
+  }
+  function coverHTML(c, mast) {
+    return `<div class="cover">
+        <img class="cover__img" src="${c.cover.url}" alt="" style="${pos(c.cover)}">
+        <div class="cover__top"><span>No. 50</span><span>30 · 10 · 2026</span></div>
+        <div class="cover__head"><p class="cover__mast">${mast}</p>
+          <p class="cover__issue">The Golden Jubilee Issue</p>
+          <div class="cover__sticker"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="${STAR}" fill="url(#seal)"/><circle cx="50" cy="50" r="37" fill="none" stroke="#7d5815" stroke-width=".9" stroke-dasharray="1.6 2.2"/></svg>
+            <span class="cover__sticker-t"><small>turning</small><b>50</b><small>&amp; fabulous</small></span></div>
+        </div>
+        <div class="cover__lines">
+          <p class="cover__line"><b>The Feature</b>Sonal, in focus</p>
+          <p class="cover__line"><b>The Stylist-in-Chief</b>How one woman dresses the whole family</p>
+          <p class="cover__line"><b>The Lookbook</b>Ten years of looks, love &amp; looking after everyone</p>
+        </div>
+        <div class="cover__barcode">${barcode()}<span>PRICELESS · OCT 2026</span></div>
+        <p class="cover__cue">scroll to turn the page</p>
+      </div>`;
+  }
+  function insideHTML() {
+    const rows = [['02', 'The Feature', 'Sonal, in focus'], ['03', 'The Glossary', 'Four names, one icon'], ['04', 'Inside the label', 'Made to measure, 1976'],
+      ['05', 'The Stylist-in-Chief', 'She dresses us all'], ['06', 'The Lookbook', 'A decade of looks'], ['07', 'Letters', 'From Hitanshu, Archita & Papa'],
+      ['10', 'The Front Row', 'Wishes from the family'], ['11', 'Make a wish', 'Five candles']];
+    return `<div class="inside"><p class="inside__k">In this issue</p><p class="inside__h">Contents</p>
+      <ol class="inside__list">${rows.map((r) => `<li><span class="inside__n">${r[0]}</span><span><b>${r[1]}</b>${r[2]}</span></li>`).join('')}</ol>
+      <p class="inside__f">SONAL · THE GOLDEN ISSUE · NO. 50</p></div>`;
+  }
   function pgCover(c) {
     const mast = 'SONAL'.split('').map((l) => `<span>${l}</span>`).join('');
+    const front = coverHTML(c, mast), back = insideHTML();
+    // the cover is three hinged strips (each a window onto the full cover), so the page can curl as it turns
+    const seg = (i, inner) => `<div class="seg" style="--i:${i}">
+        <div class="face face--front"><div class="face__in" style="left:calc(var(--W) * ${-i / 3})">${front}</div><i class="face__shade"></i><i class="face__gloss"></i></div>
+        <div class="face face--back"><div class="face__in" style="left:calc(var(--W) * ${-(2 - i) / 3})">${back}</div><i class="face__shade"></i></div>
+        ${inner || ''}</div>`;
     return `<div class="turn" id="turn">
       <div class="opening">
         <p class="kicker" data-intro>The Golden Issue · No. 50</p>
@@ -177,20 +216,10 @@
         <p class="editor" data-intro>${esc(c.editorNote)}</p>
         ${c.cover.credit ? `<p class="oncover" data-intro><b>On the cover</b> ${esc(c.cover.credit)}</p>` : ''}
       </div>
-      <article class="cover" aria-label="The cover">
-        <img class="cover__img" src="${c.cover.url}" alt="${esc(c.cover.alt || 'Sonal')}" style="${pos(c.cover)}">
-        <div class="cover__top"><span>No. 50</span><span>30 · 10 · 2026</span></div>
-        <div class="cover__head"><h1 class="cover__mast" aria-label="SONAL">${mast}</h1>
-        <p class="cover__issue">The Golden Jubilee Issue</p></div>
-        <div class="cover__lines">
-          <p class="cover__line"><b>The Feature</b>One night, one look</p>
-          <p class="cover__line"><b>The Stylist-in-Chief</b>How one woman dresses the whole family</p>
-          <p class="cover__line"><b>The Lookbook</b>Ten years of looks, love &amp; looking after everyone</p>
-        </div>
-        <div class="cover__sticker"><b>50</b><small>&amp; fabulous</small></div>
-        <p class="cover__cue">scroll to turn the page</p>
-        <div class="cover__shade"></div>
-      </article>
+      <i class="turn__shadow" aria-hidden="true"></i>
+      <div class="leaf" id="leaf" role="img" aria-label="The cover: SONAL, the Golden Jubilee Issue — ${esc(c.cover.alt || 'Sonal')}">
+        <div class="leaf__flat">${front}</div>${seg(0, seg(1, seg(2)))}</div>
+      <i class="peel" aria-hidden="true"><i class="peel__under"></i><i class="peel__flap"><i></i></i></i>
     </div>`;
   }
 
@@ -367,7 +396,7 @@
 
   /* ---------------- opening the gift ---------------- */
   function sizeMini() {
-    const gift = $('.gift'), mini = $('.mini'), cover = $('.cover');
+    const gift = $('.gift'), mini = $('.mini'), cover = $('#leaf');
     const g = gift.getBoundingClientRect(), t = cover.getBoundingClientRect();
     const w = g.width * .64, h = w * (t.height / t.width);
     Object.assign(mini.style, { width: `${w}px`, height: `${h}px`, marginLeft: `${-w / 2}px` });
@@ -401,7 +430,7 @@
       .to('.stage__kicker, .stage__line', { opacity: 0, y: -16, duration: .5 }, '<')
       .fromTo('.mini', { opacity: 0, y: 40 }, { opacity: 1, y: () => -$('.mini').offsetHeight * .5, duration: 1.1, ease: 'power2.out' }, '<.1');
     tl.add(() => {
-      const mini = $('.mini'), a = mini.getBoundingClientRect(), b = $('.cover').getBoundingClientRect();
+      const mini = $('.mini'), a = mini.getBoundingClientRect(), b = $('#leaf').getBoundingClientRect();
       G.set(mini, { zIndex: 20 });
       const t2 = G.timeline({ onComplete: afterOpen });
       t2.to(mini, { x: `+=${b.left - a.left}`, y: `+=${b.top - a.top}`, scale: b.width / a.width, duration: 1.1, ease: 'power3.inOut' })
@@ -422,8 +451,33 @@
     setupScrollAnimations();
   }
 
+  /* ---------------- the page turn ---------------- */
+  const turnState = { p: 0 };
+  const rad = (d) => d * Math.PI / 180;
+  function sizeLeaf() { const leaf = $('#leaf'); if (leaf) leaf.style.setProperty('--W', `${leaf.offsetWidth}px`); }
+  function renderTurn(q) {
+    const segs = $$('#leaf .seg');
+    const e = Math.pow(q, 1.9);   // the edge peels slowly; the page is off screen past ~100°, so the visible part gets most of the scroll
+    const th = 180 * e, curl = 72 * Math.sin(Math.PI * q);           // the outer edge leads: the page bends
+    const w1 = Math.max(0, th - curl * .55), w3 = Math.min(180, th + curl * .45), w2 = Math.min(Math.max((w1 + w3) / 2, w1), w3);
+    const world = [w1, w2, w3], rel = [w1, w2 - w1, w3 - w2];
+    const shade = (a) => Math.sin(rad(a)) * (a < 90 ? .55 : .4);      // a tilted page catches less light
+    const seam = [world[0], (world[0] + world[1]) / 2, (world[1] + world[2]) / 2, world[2]];
+    segs.forEach((sg, i) => {
+      sg.style.transform = `rotateY(${-rel[i]}deg)`;
+      sg.style.setProperty('--sl', shade(seam[i]).toFixed(3));
+      sg.style.setProperty('--sr', shade(seam[i + 1]).toFixed(3));
+      sg.style.setProperty('--gl', Math.max(0, Math.sin(rad(world[i] * 2)) * .6).toFixed(3));
+    });
+    const edge = Math.max(0, (Math.cos(rad(w1)) + Math.cos(rad(w2)) + Math.cos(rad(w3))) / 3);   // where the page's edge falls
+    $('#turn').style.setProperty('--shw', `${(edge * 100).toFixed(1)}%`);
+    $('#turn').style.setProperty('--sho', (q > 0 ? Math.min(1, Math.sin(rad(Math.min(w2, 90))) * 1.6) * Math.min(1, edge * 3) : 0).toFixed(3));
+    $('#turn').classList.toggle('is-turning', q > .004);
+  }
+
   /* ---------------- scroll animations ---------------- */
   function setupScrollAnimations() {
+    sizeLeaf(); addEventListener('resize', sizeLeaf); renderTurn(0);
     // the cover turns like a page, and the golden "50" writes itself underneath
     const stroke = $('.fifty__stroke');
     G.set(stroke, { strokeDasharray: 900, strokeDashoffset: 900 });
@@ -436,8 +490,7 @@
         onUpdate: (s) => { if (!burst && s.progress > .92) { burst = true; const r = $('.fifty').getBoundingClientRect(); confetti(r.left + r.width / 2, r.top + r.height * .6, 70, 1.4); } },
       },
     })
-      .to('.cover', { rotateY: -105, duration: 1, ease: 'power1.in' }, 0)
-      .to('.cover__shade', { opacity: 1, duration: .6 }, 0)
+      .to(turnState, { p: 1, duration: .85, ease: 'none', onUpdate: () => renderTurn(turnState.p) }, 0)
       .to(stroke, { strokeDashoffset: 0, duration: .55, ease: 'none' }, .35)
       .to('.fifty__fill', { opacity: 1, duration: .25 }, .78)
       .to(stroke, { opacity: .25, duration: .2 }, .85)
